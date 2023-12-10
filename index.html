@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-blue-100 min-h-screen flex items-center justify-center flex flex-col">
+    <div class="text-center">
+        <h1 class="text-4xl font-bold text-blue-700">Weather App</h1>
+        <input type="text" placeholder="Enter location" id="loc"
+            class="mt-4 p-3 border border-blue-500 rounded-md focus:outline-none focus:border-blue-700">
+        <button onclick="submit()" type="submit"
+            class="mt-4 bg-blue-500 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:shadow-outline-blue active:bg-blue-800">
+            Find Temperature
+        </button>
+    </div>
+
+    <div id="weatherContainer"
+        class="hidden container mt-8 mx-auto p-6 bg-white rounded-md shadow-lg text-blue-800">
+        <!-- Values of a, b, c, d will be displayed here -->
+        <div class="grid grid-cols-2 gap-4 justify-items-center">
+            <div class="flex items-center">
+                <div class="text-3xl font-semibold mr-2">${a}°C</div>
+                <i data-feather="thermometer" class="text-2xl"></i>
+            </div>
+
+            <div class="flex items-center">
+                <div class="text-3xl font-semibold mr-2">${b}°C</div>
+                <i data-feather="wind" class="text-2xl"></i>
+            </div>
+
+            <div class="flex items-center">
+                <div class="text-3xl font-semibold mr-2">${c}%</div>
+                <i data-feather="droplet" class="text-2xl"></i>
+            </div>
+
+            <div class="flex items-center">
+                <div class="text-3xl font-semibold mr-2">${d} m/s</div>
+                <i data-feather="wind" class="text-2xl transform rotate-90"></i>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function submit() {
+            try {
+                const name = document.getElementById('loc').value;
+                const apiKey = 'APCR4NZUR8DXY74QNWU5D72UK'; // Replace with your actual API key
+                const apiUrl = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${name}?key=${apiKey}`;
+
+                const response = await fetch(apiUrl);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const a = data.days['0'].hours['12'].temp;
+                const b = data.days['0'].hours['12'].feelslike;
+                const c = data.days['0'].hours['0'].humidity;
+                const d = data.days['0'].hours['0'].windspeed;
+
+                // Display values in the container
+                const container = document.getElementById('weatherContainer');
+                container.classList.remove('hidden');
+                container.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4 justify-items-center">
+                        <div class="flex items-center">
+                            <div class="text-1xl font-semibold mr-2">Temperature: ${a}°f</div>
+                            <i data-feather="thermometer" class="text-2xl"></i>
+                        </div>
+
+                        <div class="flex items-center">
+                            <div class="text-1xl font-semibold mr-2">FeelsLike: ${b}°f</div>
+                            <i data-feather="wind" class="text-2xl"></i>
+                        </div>
+
+                        <div class="flex items-center">
+                            <div class="text-1xl font-semibold mr-2">Humidity: ${c}%</div>
+                            <i data-feather="droplet" class="text-2xl"></i>
+                        </div>
+
+                        <div class="flex items-center">
+                            <div class="text-1xl font-semibold mr-2">Wind Speed: ${d} m/s</div>
+                            <i data-feather="wind" class="text-2xl transform rotate-90"></i>
+                        </div>
+                    </div>
+                `;
+
+                // Refresh Feather icons
+                feather.replace();
+            } catch (error) {
+                console.error('Error fetching weather data:', error);
+            }
+        }
+    </script>
+</body>
+
+</html>
